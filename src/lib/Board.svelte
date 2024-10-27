@@ -33,38 +33,12 @@
     const seeded = seed();
     const board = $state(seeded);
 
-    function transformRight() {
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                const val = board[i][j].value;
-                if (val && j < 2) {
-                    board[i][j + 1].value = val;
-                    board[i][j].value = null;
-                }
-            }
-        }
-    }
-
-    function transformLeft() {
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                const val = board[i][j].value;
-                if (val && j > 0) {
-                    board[i][j - 1].value = val;
-                    board[i][j].value = null;
-                }
-            }
-        }
-    }
-
-    function onkeyup(event) {
+    function onkeyup(event: KeyboardEvent) {
         console.log(event);
         switch (event.key) {
             case "ArrowRight":
-                transformRight();
                 break;
             case "ArrowLeft":
-                transformLeft();
                 break;
             case "ArrowDown":
                 break;
@@ -85,7 +59,7 @@
             {#each row as cell}
                 <div
                     class="cell"
-                    style={cell.value ? "background-color: #eee4da;" : ""}
+                    style={cell.value ? "background-color: white;" : ""}
                 >
                     {cell.value}
                 </div>
@@ -96,30 +70,20 @@
 
 <style>
     :root {
-        --cell-width: 80px;
-        --cell-height: 80px;
+        --cell-width: 20px;
+        --cell-height: 20px;
     }
 
     .board {
         display: flex;
         width: fit-content;
-        background-color: #bbada0;
-        border-radius: 4px;
-        border: 2px solid brown;
+        background-color: black;
     }
 
     .cell {
         width: var(--cell-width);
         height: var(--cell-height);
-        background-color: rgba(238, 228, 218, 0.35);
-        border-radius: 1px;
         margin: 3px;
         display: flex;
-        justify-content: center;
-        align-items: center;
-        font-family: sans-serif;
-        font-size: 32px;
-        font-weight: 600;
-        color: brown;
     }
 </style>
