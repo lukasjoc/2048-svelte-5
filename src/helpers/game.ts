@@ -51,27 +51,20 @@ if (import.meta.vitest) {
     const { it, expect } = import.meta.vitest
     it('can shift right', () => {
         let cases = [
-            [/*input*/[4, 0, 4], /*expected*/[0, 0, 8]], // NOK
-            //
+            [/*input*/[4, 0, 4], /*expected*/[0, 0, 8]],
             [/*input*/[4, 4, 4], /*expected*/[0, 4, 8]],
             [/*input*/[0, 2, 0], /*expected*/[0, 0, 2]],
             [/*input*/[2, 4, 0], /*expected*/[0, 2, 4]],
-            // //
             [/*input*/[0, 0, 2], /*expected*/[0, 0, 2]],
-            [/*input*/[2, 0, 0], /*expected*/[0, 0, 2]], // NOK
-            //
+            [/*input*/[2, 0, 0], /*expected*/[0, 0, 2]],
             [/*input*/[2, 2, 2], /*expected*/[0, 2, 4]],
-            //
-            [/*input*/[4, 4, 0], /*expected*/[0, 0, 8]], // NOK
+            [/*input*/[4, 4, 0], /*expected*/[0, 0, 8]],
             [/*input*/[0, 4, 4], /*expected*/[0, 0, 8]],
-            // //
             [/*input*/[8, 4, 2], /*expected*/[8, 4, 2]],
             [/*input*/[8, 8, 8], /*expected*/[0, 8, 16]],
             [/*input*/[4, 4, 4], /*expected*/[0, 4, 8]],
-            // //
             [/*input*/[4, 2, 0], /*expected*/[0, 4, 2]],
             [/*input*/[0, 2, 4], /*expected*/[0, 2, 4]],
-            //
             [/*input*/[8, 4, 4], /*expected*/[0, 8, 8]],
             [/*input*/[4, 4, 8], /*expected*/[0, 8, 8]],
         ];
@@ -83,25 +76,18 @@ if (import.meta.vitest) {
     it('can shift left', () => {
         let cases = [
             [/*input*/[4, 0, 4], /*expected*/[8, 0, 0]],
-
             [/*input*/[4, 4, 4], /*expected*/[8, 4, 0]],
             [/*input*/[0, 2, 0], /*expected*/[2, 0, 0]],
             [/*input*/[2, 4, 0], /*expected*/[2, 4, 0]],
-
             [/*input*/[0, 0, 2], /*expected*/[2, 0, 0]],
             [/*input*/[2, 0, 0], /*expected*/[2, 0, 0]],
-
             [/*input*/[2, 2, 2], /*expected*/[4, 2, 0]],
-
             [/*input*/[4, 4, 0], /*expected*/[8, 0, 0]],
             [/*input*/[0, 4, 4], /*expected*/[8, 0, 0]],
-
             [/*input*/[8, 4, 2], /*expected*/[8, 4, 2]],
             [/*input*/[8, 8, 8], /*expected*/[16, 8, 0]],
-
             [/*input*/[4, 2, 0], /*expected*/[4, 2, 0]],
             [/*input*/[0, 2, 4], /*expected*/[2, 4, 0]],
-
             [/*input*/[8, 4, 4], /*expected*/[8, 8, 0]],
             [/*input*/[4, 4, 8], /*expected*/[8, 8, 0]],
         ];
