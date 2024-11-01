@@ -38,13 +38,13 @@ export function createTile(value: number): TileType {
 
 <style>
     :root {
-        --cell-width: 96px;
-        --cell-height: 96px;
+        --tile-width: 96px;
+        --tile-height: 96px;
     }
 
     .tile {
-        min-width: var(--cell-width);
-        min-height: var(--cell-height);
+        width: var(--tile-width);
+        height: var(--tile-height);
         margin: 3px;
         border-radius: 3px;
         padding: 3px;
@@ -53,7 +53,7 @@ export function createTile(value: number): TileType {
     }
 
     .value {
-        font-family: Agave;
+        font-family: Agave, monospace;
         font-size: 64px;
     }
 </style>

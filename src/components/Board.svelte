@@ -59,20 +59,26 @@
         }, 200);
     }
 
+    let topScore = $state(0);
+
     function onkeyup(event: KeyboardEvent) {
         switch (event.key) {
             case "ArrowRight":
                 // TODO: backbuffer it ??
                 for (let rowIdx = 0; rowIdx < board.length; rowIdx++) {
                     let row = board[rowIdx].map((_) => _.value);
-                    board[rowIdx] = combineToRight(row).map(createTile);
+                    let { result, score } = combineToRight(row);
+                    board[rowIdx] = result.map(createTile);
+                    topScore += score;
                 }
                 chooseNextRandomField();
                 break;
             case "ArrowLeft":
                 for (let rowIdx = 0; rowIdx < board.length; rowIdx++) {
                     let row = board[rowIdx].map((_) => _.value);
-                    board[rowIdx] = combineToLeft(row).map(createTile);
+                    let { result, score } = combineToLeft(row);
+                    board[rowIdx] = result.map(createTile);
+                    score += score;
                 }
                 chooseNextRandomField();
                 break;
@@ -82,11 +88,12 @@
                     for (let colIdx = 0; colIdx < board.length; colIdx++) {
                         transposed.push(board[colIdx][rowIdx].value);
                     }
-                    let retTransposed =
-                        combineToRight(transposed).map(createTile);
+                    let { result, score } = combineToRight(transposed);
+                    let resultTiles = result.map(createTile);
                     for (let colIdx = 0; colIdx < board.length; colIdx++) {
-                        board[colIdx][rowIdx] = retTransposed[colIdx];
+                        board[colIdx][rowIdx] = resultTiles[colIdx];
                     }
+                    topScore += score;
                 }
                 chooseNextRandomField();
                 break;
@@ -96,11 +103,12 @@
                     for (let colIdx = 0; colIdx < board.length; colIdx++) {
                         transposed.push(board[colIdx][rowIdx].value);
                     }
-                    let retTransposed =
-                        combineToLeft(transposed).map(createTile);
+                    let { result, score } = combineToLeft(transposed);
+                    let resultTiles = result.map(createTile);
                     for (let colIdx = 0; colIdx < board.length; colIdx++) {
-                        board[colIdx][rowIdx] = retTransposed[colIdx];
+                        board[colIdx][rowIdx] = resultTiles[colIdx];
                     }
+                    topScore += score;
                 }
                 chooseNextRandomField();
                 break;
@@ -122,8 +130,19 @@
         </div>
     {/each}
 </div>
+<div class="score">Score: {topScore}</div>
 
 <style>
+    .score {
+        font-family: monospace;
+        background-color: brown;
+        width: fit-content;
+        color: white;
+        border-radius: 2px;
+        padding: 3px;
+        font-size: 18px;
+        margin-top: 3px;
+    }
     .board {
         width: fit-content;
         background-color: brown;

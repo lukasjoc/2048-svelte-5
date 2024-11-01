@@ -1,7 +1,12 @@
+type CombinationResult = {
+    result: number[];
+    score: number;
+}
 // TODO: move __rounds into the function and use while instead to keep going
 // for cases that are shifted first but need further combination (can be combined).
-export function combineToRight(xs: number[], __rounds = false): number[] {
+export function combineToRight(xs: number[], __rounds = false): CombinationResult {
     let ret = xs.slice();
+    let score = 0;
     for (let i = ret.length - 1; i >= 0; i--) {
         let rhsIdx = i;
         let lhsIdx = i - 1;
@@ -13,11 +18,12 @@ export function combineToRight(xs: number[], __rounds = false): number[] {
         ret.splice(lhsIdx, 2, sum);
         ret.unshift(0);
         if (rhs > 0 && lhs > 0 && rhs === lhs) {
+            score += sum;
             __rounds = true
         }
     }
     if (__rounds || JSON.stringify(xs) === JSON.stringify(ret)) {
-        return ret;
+        return { result: ret, score };
     }
     // NOTE : in some cases we only shift in the first iteration so we need to
     // run it again to make our single combination happen. Thus the recursion.
@@ -25,8 +31,9 @@ export function combineToRight(xs: number[], __rounds = false): number[] {
     return combineToRight(ret, __rounds);
 }
 
-export function combineToLeft(xs: number[], __rounds = false): number[] {
+export function combineToLeft(xs: number[], __rounds = false): CombinationResult {
     let ret = xs.slice();
+    let score = 0;
     for (let i = 0; i < ret.length; i++) {
         let lhsIdx = i;
         let rhsIdx = i + 1;
@@ -38,17 +45,19 @@ export function combineToLeft(xs: number[], __rounds = false): number[] {
         ret.splice(lhsIdx, 2, sum);
         ret.push(0);
         if (rhs > 0 && lhs > 0 && rhs === lhs) {
+            score += sum;
             __rounds = true
         }
     }
     if (__rounds || JSON.stringify(xs) === JSON.stringify(ret)) {
-        return ret;
+        return { result: ret, score };
     }
     return combineToLeft(ret, __rounds);
 }
 
 if (import.meta.vitest) {
     const { it, expect } = import.meta.vitest
+    // TODO: test scores
     it('can shift right', () => {
         let cases = [
             [/*input*/[4, 0, 4], /*expected*/[0, 0, 8]],
@@ -69,7 +78,7 @@ if (import.meta.vitest) {
             [/*input*/[4, 4, 8], /*expected*/[0, 8, 8]],
         ];
         for (const [input, expected] of cases) {
-            expect(combineToRight(input)).toStrictEqual(expected)
+            expect(combineToRight(input).result).toStrictEqual(expected)
         }
     })
 
@@ -92,7 +101,7 @@ if (import.meta.vitest) {
             [/*input*/[4, 4, 8], /*expected*/[8, 8, 0]],
         ];
         for (const [input, expected] of cases) {
-            expect(combineToLeft(input)).toStrictEqual(expected)
+            expect(combineToLeft(input).result).toStrictEqual(expected)
         }
     })
 }
