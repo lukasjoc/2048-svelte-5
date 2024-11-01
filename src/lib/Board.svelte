@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { toRightTransformed, toLeftTransformed } from "./game";
+    import { combineToRight, combineToLeft } from "./game2";
 
     function choose(...items: number[]) {
         const idx = Math.floor(Math.random() * items.length);
@@ -9,9 +9,23 @@
     function randN(N: number) {
         return Math.floor(Math.random() * N);
     }
+
+    function getColorForValue(x: number): string {
+        if (x === 2) return "white";
+        if (x === 4) return "yellow";
+        if (x === 8) return "orange";
+        if (x === 16) return "orangered";
+        if (x === 32) return "red";
+        if (x === 64) return "purple";
+        if (x === 128) return "blue";
+        if (x === 256) return "darkblue";
+        if (x === 512) return "darkgreen";
+        return "black";
+    }
+
     function seed() {
         console.log("Seed");
-        const board: { value: number | null }[][] = [];
+        const board: { value: number | null; color: string }[][] = [];
         for (let rowIndex = 0; rowIndex < 3; rowIndex++) {
             let row = [];
             for (let cellIndex = 0; cellIndex < 3; cellIndex++) {
@@ -24,12 +38,18 @@
 
         const rowIdxFirst = randN(3);
         const colIdxFirst = randN(3);
-        board[rowIdxFirst][colIdxFirst] = { value: first };
+        board[rowIdxFirst][colIdxFirst] = {
+            value: first,
+            color: getColorForValue(first),
+        };
         let rowIdxSecond = randN(3);
         let colIdxSecond = randN(3);
         while (rowIdxSecond === rowIdxFirst) rowIdxSecond = randN(3);
         while (colIdxSecond === colIdxFirst) colIdxSecond = randN(3);
-        board[rowIdxSecond][colIdxSecond] = { value: second };
+        board[rowIdxSecond][colIdxSecond] = {
+            value: second,
+            color: getColorForValue(second),
+        };
         return board;
     }
     const seeded = seed();
@@ -45,7 +65,8 @@
         let idx = choose(...indices);
         let row = Math.floor(idx / board.length);
         let col = Math.max(row, row - 3);
-        board[row][col] = { value: choose(2, 4) };
+        let x = choose(2, 4);
+        board[row][col] = { value: x, color: getColorForValue(x) };
         console.log(idx);
     }
 
@@ -55,10 +76,11 @@
             case "ArrowRight":
                 for (let i = 0; i < board.length; i++) {
                     let row = board[i].map((x) => x.value ?? 0);
-                    let transformed = toRightTransformed(row);
+                    let transformed = combineToRight(row);
                     console.log("Index: ", i, row, transformed);
                     let ret = transformed.map((x) => ({
                         value: x == 0 ? null : x,
+                        color: getColorForValue(x),
                     }));
                     board[i] = ret;
                 }
@@ -67,13 +89,15 @@
             case "ArrowLeft":
                 for (let i = 0; i < board.length; i++) {
                     let row = board[i].map((x) => x.value ?? 0);
-                    let transformed = toLeftTransformed(row);
+                    let transformed = combineToLeft(row);
                     console.log("Index: ", i, row, transformed);
                     let ret = transformed.map((x) => ({
                         value: x == 0 ? null : x,
+                        color: getColorForValue(x),
                     }));
                     board[i] = ret;
                 }
+                chooseNextRandomField();
                 break;
             case "ArrowDown":
                 break;
@@ -90,14 +114,15 @@
 <svelte:window {onkeyup} />
 
 <div class="board">
-    {#each board as row}
+    {#each board as row, i (i)}
         <div class="row">
-            {#each row as cell, i}
+            {#each row as cell, i (i)}
                 <div
                     class="cell"
-                    style={cell.value ? "background-color: white;" : ""}
+                    style={cell.value ? `background-color: ${cell.color};` : ""}
                 >
-                    {i}{cell.value}
+                    <span class="index">{i}</span>
+                    <span class="value">{cell.value}</span>
                 </div>
             {/each}
         </div>
@@ -106,14 +131,15 @@
 
 <style>
     :root {
-        --cell-width: 20px;
-        --cell-height: 20px;
+        --cell-width: 200px;
+        --cell-height: 200px;
     }
 
     .board {
         /* display: flex; */
         width: fit-content;
         background-color: black;
+        border-radius: 3px;
     }
     .row {
         display: flex;
@@ -124,7 +150,16 @@
         width: var(--cell-width);
         height: var(--cell-height);
         margin: 3px;
+        border-radius: 3px;
         /* display: flex; */
-        color: red;
+        /* color: red; */
+    }
+    .value {
+        font-family: Agave;
+        font-size: 64px;
+    }
+    .index {
+        font-family: monospace;
+        font-size: 8px;
     }
 </style>
