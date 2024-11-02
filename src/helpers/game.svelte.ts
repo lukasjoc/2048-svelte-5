@@ -62,10 +62,17 @@ export class Board {
 
 type Move = {
     score: number;
+    moved: boolean;
 };
 
 function createMove(): Move {
-    return { score: 0 }
+    return { score: 0, moved: false }
+}
+
+function setDidMove(move: Move, a: number[], b: number[]): boolean {
+    if (move.moved) return move.moved;
+    move.moved = deepEquals(a, b) === false;
+    return move.moved;
 }
 
 type TopScore = {
@@ -108,6 +115,7 @@ export class Game {
         for (let rowIdx = 0; rowIdx < this.board.rows; rowIdx++) {
             let row = this.board.tiles[rowIdx].map((_) => _.value);
             let { result, score } = combineToRight(row);
+            setDidMove(move, result, row);
             this.board.tiles[rowIdx] = result.map(createTile);
             move.score += score;
         }
@@ -119,6 +127,7 @@ export class Game {
         for (let rowIdx = 0; rowIdx < this.board.rows; rowIdx++) {
             let row = this.board.tiles[rowIdx].map((_) => _.value);
             let { result, score } = combineToLeft(row);
+            setDidMove(move, result, row);
             this.board.tiles[rowIdx] = result.map(createTile);
             move.score += score;
         }
@@ -134,6 +143,7 @@ export class Game {
             }
 
             let { result, score } = combineToRight(transposed);
+            setDidMove(move, result, transposed);
             let resultTiles = result.map(createTile);
             for (let colIdx = 0; colIdx < this.board.cols; colIdx++) {
                 this.board.tiles[colIdx][rowIdx] = resultTiles[colIdx];
@@ -152,6 +162,7 @@ export class Game {
                 transposed.push(this.board.tiles[colIdx][rowIdx].value);
             }
             let { result, score } = combineToLeft(transposed);
+            setDidMove(move, result, transposed);
             let resultTiles = result.map(createTile);
             for (let colIdx = 0; colIdx < this.board.cols; colIdx++) {
                 this.board.tiles[colIdx][rowIdx] = resultTiles[colIdx];
@@ -205,7 +216,9 @@ export class Game {
             this.saveTopScore();
             return;
         }
-        await this.board.chooseNext();
+        if (move.moved) {
+            await this.board.chooseNext();
+        }
     }
 }
 
