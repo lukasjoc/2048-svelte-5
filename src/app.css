@@ -1,0 +1,14 @@
+html,
+body {
+    color-scheme: only dark;
+    font-family: Agave, Menlo, monospace;
+    font-size: 16px;
+}
+
+div {
+    border-radius: 3px;
+}
+
+button {
+    cursor: pointer;
+}

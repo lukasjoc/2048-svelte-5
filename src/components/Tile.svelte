@@ -5,7 +5,7 @@
 
 <div
     class="tile"
-    style={tile.value ? `color:black;background-color:${tile.color};` : ""}
+    style={tile.value ? `color:darkblue;background-color:${tile.color};` : ""}
 >
     <span class="value">{tile.value > 0 ? tile.value : ""}</span>
 </div>
@@ -20,14 +20,13 @@
         width: var(--tile-width);
         height: var(--tile-height);
         margin: 3px;
-        border-radius: 3px;
         padding: 3px;
         color: white;
-        background-color: #6e1b1b;
+        background-color: #000b46;
     }
 
     .value {
-        font-family: Agave, monospace;
-        font-size: 64px;
+        font-family: Agave, Menlo, monospace;
+        font-size: 49px;
     }
 </style>

@@ -5,36 +5,52 @@ import { choose, rand } from "@/helpers/random";
 import { wait } from "@/helpers/std";
 import { onMount } from 'svelte';
 
+function createBoard(tiles: TileType[][], rows: number, cols: number) {
+    for (let rowIdx = 0; rowIdx < rows; rowIdx++) {
+        let row = [];
+        for (let colIdx = 0; colIdx < cols; colIdx++) {
+            const tile = createTile(0);
+            row.push(tile);
+        }
+        tiles.push(row);
+    }
+    // TODO: seed rnadom amount of starting slots
+    // TODO: clean this up
+    const first = choose(2, 4);
+    const second = first === 2 ? 4 : 2;
+    const rowIdxFirst = rand(rows);
+    const colIdxFirst = rand(cols);
+    tiles[rowIdxFirst][colIdxFirst] = createTile(first);
+    let rowIdxSecond = rand(rows);
+    let colIdxSecond = rand(cols);
+    while (rowIdxSecond === rowIdxFirst) {
+        rowIdxSecond = rand(cols);
+    }
+    while (colIdxSecond === colIdxFirst) {
+        colIdxSecond = rand(rows);
+    }
+    tiles[rowIdxSecond][colIdxSecond] = createTile(second);
+}
+
 export class Board {
     tiles = $state<TileType[][]>([]);
 
     getSlice() { return this.tiles.slice() }
 
     constructor(public rows: number, public cols: number) {
-        for (let rowIdx = 0; rowIdx < rows; rowIdx++) {
-            let row = [];
-            for (let cellIdx = 0; cellIdx < cols; cellIdx++) {
-                const tile = createTile(0);
-                // TODO: safe the row,col idx as this should simplify some code below
-                row.push(tile);
-            }
-            this.tiles.push(row);
-        }
-        // TODO: clean this up
-        const first = choose(2, 4);
-        const second = first === 2 ? 4 : 2;
-        const rowIdxFirst = rand(rows);
-        const colIdxFirst = rand(cols);
-        this.tiles[rowIdxFirst][colIdxFirst] = createTile(first);
-        let rowIdxSecond = rand(rows);
-        let colIdxSecond = rand(cols);
-        while (rowIdxSecond === rowIdxFirst) {
-            rowIdxSecond = rand(this.cols);
-        }
-        while (colIdxSecond === colIdxFirst) {
-            colIdxSecond = rand(this.rows);
-        }
-        this.tiles[rowIdxSecond][colIdxSecond] = createTile(second);
+        createBoard(this.tiles, rows, cols);
+    }
+
+    reset() {
+        this.tiles = [];
+        createBoard(this.tiles, this.rows, this.cols)
+    }
+
+    resize(rows: number, cols: number) {
+        this.rows = rows;
+        this.cols = cols;
+        this.tiles = [];
+        createBoard(this.tiles, rows, cols)
     }
 
     private findEmptySlots() {
@@ -48,7 +64,7 @@ export class Board {
         return slots;
     }
 
-    async chooseNext(waitMs = 200) {
+    async chooseNext(waitMs: number = 200) {
         let slots = this.findEmptySlots();
         if (slots.length === 0) {
             return;
@@ -75,21 +91,32 @@ function setDidMove(move: Move, a: number[], b: number[]): boolean {
     return move.moved;
 }
 
-type TopScore = {
+type TopScoreState = {
     score: number;
     ts: number;
 }
 
-export class Game {
-    score = $state(0);
-    topScore = $state<TopScore | null>(null);
 
+type GameState = {
+    score: number;
+    lost: boolean;
+    tiles: TileType[][];
+    ts: number;
+}
+
+export class Game {
+    // TODO: score current game state in local storage
+    // TODO: score should be per size
     static STORAGE_KEY_TOPSCORE = "2048.topscore";
+    static STORAGE_KEY_GAME = "2048.game"
+
+    score = $state(0);
+    topScore = $state<TopScoreState | null>(null);
 
     private loadTopScore() {
         const item = window.localStorage.getItem(Game.STORAGE_KEY_TOPSCORE);
         if (item === null) return;
-        const topScore = JSON.parse(item) as TopScore;
+        const topScore = JSON.parse(item) as TopScoreState;
         this.topScore = topScore;
     }
 
@@ -100,7 +127,6 @@ export class Game {
         window.localStorage.setItem(Game.STORAGE_KEY_TOPSCORE, serial);
     }
 
-
     lost = $state(false)
 
     constructor(private board: Board) {
@@ -109,7 +135,11 @@ export class Game {
         })
     }
 
-    // TODO: backbuffer it ??
+    reset() {
+        this.score = 0;
+        this.lost = false;
+    }
+
     private moveRight() {
         const move = createMove();
         for (let rowIdx = 0; rowIdx < this.board.rows; rowIdx++) {
@@ -144,7 +174,7 @@ export class Game {
 
             let { result, score } = combineToRight(transposed);
             setDidMove(move, result, transposed);
-            let resultTiles = result.map(createTile);
+            let resultTiles = result.map(createTile)
             for (let colIdx = 0; colIdx < this.board.cols; colIdx++) {
                 this.board.tiles[colIdx][rowIdx] = resultTiles[colIdx];
             }
@@ -152,7 +182,6 @@ export class Game {
         }
         return move;
     }
-
 
     private moveUp() {
         const move = createMove();
