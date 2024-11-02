@@ -1,58 +1,63 @@
+import { deepEquals } from "@/helpers/std"
+
 type CombinationResult = {
     result: number[];
     score: number;
 }
+
 // TODO: move __rounds into the function and use while instead to keep going
 // for cases that are shifted first but need further combination (can be combined).
 export function combineToRight(xs: number[], __rounds = false): CombinationResult {
-    let ret = xs.slice();
+    let result = xs.slice();
     let score = 0;
-    for (let i = ret.length - 1; i >= 0; i--) {
+    for (let i = result.length - 1; i >= 0; i--) {
         let rhsIdx = i;
         let lhsIdx = i - 1;
-        let rhs = ret[rhsIdx];
-        let lhs = ret[lhsIdx];
+        let rhs = result[rhsIdx];
+        let lhs = result[lhsIdx];
         if (lhs === undefined) break;
         if (rhs !== 0 && lhs !== 0 && rhs !== lhs) continue;
+
         let sum = lhs + rhs;
-        ret.splice(lhsIdx, 2, sum);
-        ret.unshift(0);
+        result.splice(lhsIdx, 2, sum);
+        result.unshift(0);
         if (rhs > 0 && lhs > 0 && rhs === lhs) {
             score += sum;
             __rounds = true
         }
+
     }
-    if (__rounds || JSON.stringify(xs) === JSON.stringify(ret)) {
-        return { result: ret, score };
+    if (__rounds || deepEquals(xs, result)) {
+        return { result, score };
     }
     // NOTE : in some cases we only shift in the first iteration so we need to
     // run it again to make our single combination happen. Thus the recursion.
     // Could be better implemented using a while(..) {..} i think. (FIXME)
-    return combineToRight(ret, __rounds);
+    return combineToRight(result, __rounds);
 }
 
 export function combineToLeft(xs: number[], __rounds = false): CombinationResult {
-    let ret = xs.slice();
+    let result = xs.slice();
     let score = 0;
-    for (let i = 0; i < ret.length; i++) {
+    for (let i = 0; i < result.length; i++) {
         let lhsIdx = i;
         let rhsIdx = i + 1;
-        let rhs = ret[rhsIdx];
-        let lhs = ret[lhsIdx];
+        let rhs = result[rhsIdx];
+        let lhs = result[lhsIdx];
         if (rhs === undefined) break;
         if (rhs !== 0 && lhs !== 0 && rhs !== lhs) continue;
         let sum = lhs + rhs;
-        ret.splice(lhsIdx, 2, sum);
-        ret.push(0);
+        result.splice(lhsIdx, 2, sum);
+        result.push(0);
         if (rhs > 0 && lhs > 0 && rhs === lhs) {
             score += sum;
             __rounds = true
         }
     }
-    if (__rounds || JSON.stringify(xs) === JSON.stringify(ret)) {
-        return { result: ret, score };
+    if (__rounds || deepEquals(xs, result)) {
+        return { result, score };
     }
-    return combineToLeft(ret, __rounds);
+    return combineToLeft(result, __rounds);
 }
 
 if (import.meta.vitest) {

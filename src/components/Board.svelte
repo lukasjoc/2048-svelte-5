@@ -1,128 +1,43 @@
 <script lang="ts">
-    import { combineToRight, combineToLeft } from "@/helpers/game";
-    import { choose, rand } from "@/helpers/random";
-    import Tile, { type TileType, createTile } from "@/components/Tile.svelte";
+    import { Board, Game, isHandlerKey } from "@/helpers/game.svelte";
+    import { wait } from "@/helpers/std";
+    import Tile from "@/components/Tile.svelte";
+    import chartIcon from "@/assets/icons/chart.svg?raw";
 
-    const BOARD_WIDTH_DIM = 3;
-    const BOARD_HEIGHT_DIM = 3;
+    const board = new Board(3, 3);
+    const game = new Game(board);
 
-    function createBoard() {
-        const board: TileType[][] = [];
-        for (let rowIdx = 0; rowIdx < 3; rowIdx++) {
-            let row = [];
-            for (let cellIdx = 0; cellIdx < 3; cellIdx++) {
-                const tile = createTile(0);
-                // TODO: safe the row,col idx as this should simplify some code below
-                row.push(tile);
-            }
-            board.push(row);
+    async function onkeyup(event: KeyboardEvent) {
+        if (game.lost) {
+            return;
         }
-        // TODO: clean this up
-        const first = choose(2, 4);
-        const second = first === 2 ? 4 : 2;
-        const rowIdxFirst = rand(3);
-        const colIdxFirst = rand(3);
-        board[rowIdxFirst][colIdxFirst] = createTile(first);
-        let rowIdxSecond = rand(3);
-        let colIdxSecond = rand(3);
-        while (rowIdxSecond === rowIdxFirst) {
-            rowIdxSecond = rand(BOARD_HEIGHT_DIM);
-        }
-        while (colIdxSecond === colIdxFirst) {
-            colIdxSecond = rand(BOARD_WIDTH_DIM);
-        }
-        board[rowIdxSecond][colIdxSecond] = createTile(second);
-        return board;
-    }
-    const board = $state(createBoard());
-
-    function findEmptyLocations() {
-        let locations = [];
-        for (let rowIdx = 0; rowIdx < BOARD_HEIGHT_DIM; rowIdx++) {
-            for (let colIdx = 0; colIdx < BOARD_WIDTH_DIM; colIdx++) {
-                if (board[rowIdx][colIdx].value !== 0) continue;
-                locations.push([rowIdx, colIdx]);
-            }
-        }
-        return locations;
-    }
-
-    function chooseNextRandomField() {
-        let locations = findEmptyLocations();
-        console.log(locations);
-        if (locations.length === 0) return;
-        const [rowIdx, colIdx] = choose(...locations);
-        const val = choose(2, 4);
-
-        setTimeout(() => {
-            board[rowIdx][colIdx] = createTile(val);
-        }, 200);
-    }
-
-    let topScore = $state(0);
-
-    function onkeyup(event: KeyboardEvent) {
-        switch (event.key) {
-            case "ArrowRight":
-                // TODO: backbuffer it ??
-                for (let rowIdx = 0; rowIdx < board.length; rowIdx++) {
-                    let row = board[rowIdx].map((_) => _.value);
-                    let { result, score } = combineToRight(row);
-                    board[rowIdx] = result.map(createTile);
-                    topScore += score;
-                }
-                chooseNextRandomField();
-                break;
-            case "ArrowLeft":
-                for (let rowIdx = 0; rowIdx < board.length; rowIdx++) {
-                    let row = board[rowIdx].map((_) => _.value);
-                    let { result, score } = combineToLeft(row);
-                    board[rowIdx] = result.map(createTile);
-                    score += score;
-                }
-                chooseNextRandomField();
-                break;
-            case "ArrowDown":
-                for (let rowIdx = 0; rowIdx < board.length; rowIdx++) {
-                    let transposed = [];
-                    for (let colIdx = 0; colIdx < board.length; colIdx++) {
-                        transposed.push(board[colIdx][rowIdx].value);
-                    }
-                    let { result, score } = combineToRight(transposed);
-                    let resultTiles = result.map(createTile);
-                    for (let colIdx = 0; colIdx < board.length; colIdx++) {
-                        board[colIdx][rowIdx] = resultTiles[colIdx];
-                    }
-                    topScore += score;
-                }
-                chooseNextRandomField();
-                break;
-            case "ArrowUp":
-                for (let rowIdx = 0; rowIdx < board.length; rowIdx++) {
-                    let transposed = [];
-                    for (let colIdx = 0; colIdx < board.length; colIdx++) {
-                        transposed.push(board[colIdx][rowIdx].value);
-                    }
-                    let { result, score } = combineToLeft(transposed);
-                    let resultTiles = result.map(createTile);
-                    for (let colIdx = 0; colIdx < board.length; colIdx++) {
-                        board[colIdx][rowIdx] = resultTiles[colIdx];
-                    }
-                    topScore += score;
-                }
-                chooseNextRandomField();
-                break;
-            default:
-                /** NOOP */
-                return;
+        await wait(50);
+        if (isHandlerKey(event.key)) {
+            await game.move(event.key);
         }
     }
     // TODO: mobile controls
 </script>
 
 <svelte:window {onkeyup} />
+
+<div class="gameinfo">
+    {#if game.topScore}
+        <div
+            title={`Top Score (${new Date(game.topScore.ts).toLocaleString()})`}
+            class="score topscore"
+        >
+            {@html chartIcon}
+            {game.topScore.score}
+        </div>
+    {/if}
+    <div title="Current Score" class="score currscore">{game.score}</div>
+    {#if game.lost}
+        <div class="lost">Nice try!</div>
+    {/if}
+</div>
 <div class="board">
-    {#each board as row, rowIdx (rowIdx)}
+    {#each board.tiles as row, rowIdx (rowIdx)}
         <div class="row">
             {#each row as tile, tileIdx (tileIdx)}
                 <Tile {tile} />
@@ -130,19 +45,43 @@
         </div>
     {/each}
 </div>
-<div class="score">Score: {topScore}</div>
 
 <style>
+    .gameinfo {
+        display: flex;
+        margin-bottom: 3px;
+    }
+
     .score {
-        font-family: monospace;
-        background-color: brown;
-        width: fit-content;
+        font-family: Agave;
         color: white;
         border-radius: 2px;
         padding: 3px;
         font-size: 18px;
         margin-top: 3px;
+        margin-right: 3px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        max-height: 24px;
+        min-height: 24px;
+        min-width: 24px;
+        background-color: brown;
+        font-weight: 800;
     }
+
+    .topscore {
+        font-weight: 800;
+        font-size: 16px;
+    }
+
+    .lost {
+        font-weight: 800;
+        font-size: 32px;
+        font-family: Agave;
+        color: brown;
+    }
+
     .board {
         width: fit-content;
         background-color: brown;
