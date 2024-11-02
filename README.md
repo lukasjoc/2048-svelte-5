@@ -1,4 +1,4 @@
 # 2048
 
-> 2048 Clone in Svelte 5
+> 2048 in Svelte 5
 
