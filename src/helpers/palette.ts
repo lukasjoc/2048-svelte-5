@@ -2,11 +2,11 @@ import { choose } from "@/helpers/random";
 
 export type HexValue = `#${string}`;
 
-export type Palette = {
+export interface Palette {
     fg: HexValue;
     bg: HexValue;
     tile: HexValue[];
-};
+}
 
 /** https://github.com/altercation/solarized/blob/master/README.md */
 export const solarized: Palette = {

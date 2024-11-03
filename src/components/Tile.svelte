@@ -2,9 +2,9 @@
     import { type TileValue, type TileType } from "@/helpers/tile";
     const { tile }: { tile: TileType } = $props();
 
-    const tileValue = $derived<TileValue | undefined>(
-        tile.value > 0 ? tile.value : undefined,
-    );
+   const tileValue = $derived<TileValue | undefined>(
+       tile.value > 0 ? tile.value : undefined,
+   );
 </script>
 
 <div

@@ -6,10 +6,10 @@
 
     const DEFAULT_SIZE = 4;
 
-    type Size = {
+    interface Size {
         label: string;
         value: number;
-    };
+    }
 
     const sizes = $state<Size[]>(
         [DEFAULT_SIZE, 3, 2].map((s) => ({ label: `${s}x${s}`, value: s })),
@@ -24,6 +24,7 @@
         game.reset();
         board.resize(size, size);
     }
+
     function handleReset() {
         game.reset();
         board.reset();
@@ -76,6 +77,7 @@
                     class="score topscore"
                 >
                     {game.topScore.score}
+                    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                     {@html chartIcon}
                 </div>
             {/if}

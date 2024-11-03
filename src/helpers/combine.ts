@@ -1,6 +1,6 @@
-import { deepEquals } from "@/helpers/std"
+import { deepEquals } from "@/helpers/std";
 
-type CombinationResult = {
+interface CombinationResult {
     result: number[];
     score: number;
 }
@@ -8,22 +8,22 @@ type CombinationResult = {
 // TODO: move __rounds into the function and use while instead to keep going
 // for cases that are shifted first but need further combination (can be combined).
 export function combineToRight(xs: number[], __rounds = false): CombinationResult {
-    let result = xs.slice();
+    const result = xs.slice();
     let score = 0;
     for (let i = result.length - 1; i >= 0; i--) {
-        let rhsIdx = i;
-        let lhsIdx = i - 1;
-        let rhs = result[rhsIdx];
-        let lhs = result[lhsIdx];
+        const rhsIdx = i;
+        const lhsIdx = i - 1;
+        const rhs = result[rhsIdx];
+        const lhs = result[lhsIdx];
         if (lhs === undefined) break;
         if (rhs !== 0 && lhs !== 0 && rhs !== lhs) continue;
 
-        let sum = lhs + rhs;
+        const sum = lhs + rhs;
         result.splice(lhsIdx, 2, sum);
         result.unshift(0);
         if (rhs > 0 && lhs > 0 && rhs === lhs) {
             score += sum;
-            __rounds = true
+            __rounds = true;
         }
 
     }
@@ -37,21 +37,21 @@ export function combineToRight(xs: number[], __rounds = false): CombinationResul
 }
 
 export function combineToLeft(xs: number[], __rounds = false): CombinationResult {
-    let result = xs.slice();
+    const result = xs.slice();
     let score = 0;
     for (let i = 0; i < result.length; i++) {
-        let lhsIdx = i;
-        let rhsIdx = i + 1;
-        let rhs = result[rhsIdx];
-        let lhs = result[lhsIdx];
+        const lhsIdx = i;
+        const rhsIdx = i + 1;
+        const rhs = result[rhsIdx];
+        const lhs = result[lhsIdx];
         if (rhs === undefined) break;
         if (rhs !== 0 && lhs !== 0 && rhs !== lhs) continue;
-        let sum = lhs + rhs;
+        const sum = lhs + rhs;
         result.splice(lhsIdx, 2, sum);
         result.push(0);
         if (rhs > 0 && lhs > 0 && rhs === lhs) {
             score += sum;
-            __rounds = true
+            __rounds = true;
         }
     }
     if (__rounds || deepEquals(xs, result)) {
@@ -61,52 +61,52 @@ export function combineToLeft(xs: number[], __rounds = false): CombinationResult
 }
 
 if (import.meta.vitest) {
-    const { it, expect } = import.meta.vitest
+    const { it, expect } = import.meta.vitest;
     // TODO: test scores
-    it('can shift right', () => {
-        let cases = [
-            [/*input*/[4, 0, 4], /*expected*/[0, 0, 8]],
-            [/*input*/[4, 4, 4], /*expected*/[0, 4, 8]],
-            [/*input*/[0, 2, 0], /*expected*/[0, 0, 2]],
-            [/*input*/[2, 4, 0], /*expected*/[0, 2, 4]],
-            [/*input*/[0, 0, 2], /*expected*/[0, 0, 2]],
-            [/*input*/[2, 0, 0], /*expected*/[0, 0, 2]],
-            [/*input*/[2, 2, 2], /*expected*/[0, 2, 4]],
-            [/*input*/[4, 4, 0], /*expected*/[0, 0, 8]],
-            [/*input*/[0, 4, 4], /*expected*/[0, 0, 8]],
-            [/*input*/[8, 4, 2], /*expected*/[8, 4, 2]],
-            [/*input*/[8, 8, 8], /*expected*/[0, 8, 16]],
-            [/*input*/[4, 4, 4], /*expected*/[0, 4, 8]],
-            [/*input*/[4, 2, 0], /*expected*/[0, 4, 2]],
-            [/*input*/[0, 2, 4], /*expected*/[0, 2, 4]],
-            [/*input*/[8, 4, 4], /*expected*/[0, 8, 8]],
-            [/*input*/[4, 4, 8], /*expected*/[0, 8, 8]],
+    it("can shift right", () => {
+        const cases = [
+            [/* input*/[4, 0, 4], /* expected*/[0, 0, 8]],
+            [/* input*/[4, 4, 4], /* expected*/[0, 4, 8]],
+            [/* input*/[0, 2, 0], /* expected*/[0, 0, 2]],
+            [/* input*/[2, 4, 0], /* expected*/[0, 2, 4]],
+            [/* input*/[0, 0, 2], /* expected*/[0, 0, 2]],
+            [/* input*/[2, 0, 0], /* expected*/[0, 0, 2]],
+            [/* input*/[2, 2, 2], /* expected*/[0, 2, 4]],
+            [/* input*/[4, 4, 0], /* expected*/[0, 0, 8]],
+            [/* input*/[0, 4, 4], /* expected*/[0, 0, 8]],
+            [/* input*/[8, 4, 2], /* expected*/[8, 4, 2]],
+            [/* input*/[8, 8, 8], /* expected*/[0, 8, 16]],
+            [/* input*/[4, 4, 4], /* expected*/[0, 4, 8]],
+            [/* input*/[4, 2, 0], /* expected*/[0, 4, 2]],
+            [/* input*/[0, 2, 4], /* expected*/[0, 2, 4]],
+            [/* input*/[8, 4, 4], /* expected*/[0, 8, 8]],
+            [/* input*/[4, 4, 8], /* expected*/[0, 8, 8]],
         ];
         for (const [input, expected] of cases) {
-            expect(combineToRight(input).result).toStrictEqual(expected)
+            expect(combineToRight(input).result).toStrictEqual(expected);
         }
-    })
+    });
 
-    it('can shift left', () => {
-        let cases = [
-            [/*input*/[4, 0, 4], /*expected*/[8, 0, 0]],
-            [/*input*/[4, 4, 4], /*expected*/[8, 4, 0]],
-            [/*input*/[0, 2, 0], /*expected*/[2, 0, 0]],
-            [/*input*/[2, 4, 0], /*expected*/[2, 4, 0]],
-            [/*input*/[0, 0, 2], /*expected*/[2, 0, 0]],
-            [/*input*/[2, 0, 0], /*expected*/[2, 0, 0]],
-            [/*input*/[2, 2, 2], /*expected*/[4, 2, 0]],
-            [/*input*/[4, 4, 0], /*expected*/[8, 0, 0]],
-            [/*input*/[0, 4, 4], /*expected*/[8, 0, 0]],
-            [/*input*/[8, 4, 2], /*expected*/[8, 4, 2]],
-            [/*input*/[8, 8, 8], /*expected*/[16, 8, 0]],
-            [/*input*/[4, 2, 0], /*expected*/[4, 2, 0]],
-            [/*input*/[0, 2, 4], /*expected*/[2, 4, 0]],
-            [/*input*/[8, 4, 4], /*expected*/[8, 8, 0]],
-            [/*input*/[4, 4, 8], /*expected*/[8, 8, 0]],
+    it("can shift left", () => {
+        const cases = [
+            [/* input*/[4, 0, 4], /* expected*/[8, 0, 0]],
+            [/* input*/[4, 4, 4], /* expected*/[8, 4, 0]],
+            [/* input*/[0, 2, 0], /* expected*/[2, 0, 0]],
+            [/* input*/[2, 4, 0], /* expected*/[2, 4, 0]],
+            [/* input*/[0, 0, 2], /* expected*/[2, 0, 0]],
+            [/* input*/[2, 0, 0], /* expected*/[2, 0, 0]],
+            [/* input*/[2, 2, 2], /* expected*/[4, 2, 0]],
+            [/* input*/[4, 4, 0], /* expected*/[8, 0, 0]],
+            [/* input*/[0, 4, 4], /* expected*/[8, 0, 0]],
+            [/* input*/[8, 4, 2], /* expected*/[8, 4, 2]],
+            [/* input*/[8, 8, 8], /* expected*/[16, 8, 0]],
+            [/* input*/[4, 2, 0], /* expected*/[4, 2, 0]],
+            [/* input*/[0, 2, 4], /* expected*/[2, 4, 0]],
+            [/* input*/[8, 4, 4], /* expected*/[8, 8, 0]],
+            [/* input*/[4, 4, 8], /* expected*/[8, 8, 0]],
         ];
         for (const [input, expected] of cases) {
-            expect(combineToLeft(input).result).toStrictEqual(expected)
+            expect(combineToLeft(input).result).toStrictEqual(expected);
         }
-    })
+    });
 }

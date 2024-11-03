@@ -1,4 +1,4 @@
-import { onMount } from 'svelte';
+import { onMount } from "svelte";
 import { choose, rand } from "@/helpers/random";
 import { combineToRight, combineToLeft } from "@/helpers/combine";
 import { deepEquals } from "@/helpers/std";
@@ -12,11 +12,11 @@ export class Board {
 
     tiles = $state<TileType[][]>([]);
 
-    getSlice() { return this.tiles.slice() }
+    getSlice() { return this.tiles.slice(); }
 
     private create() {
         for (let rowIdx = 0; rowIdx < this.rows; rowIdx++) {
-            let row = [];
+            const row = [];
             for (let colIdx = 0; colIdx < this.cols; colIdx++) {
                 const tile = createTile(0, this.tileCssOutput);
                 row.push(tile);
@@ -61,7 +61,7 @@ export class Board {
     }
 
     private findEmptySlots() {
-        let slots: [number, number][] = [];
+        const slots: [number, number][] = [];
         for (let rowIdx = 0; rowIdx < this.rows; rowIdx++) {
             for (let colIdx = 0; colIdx < this.cols; colIdx++) {
                 if (this.tiles[rowIdx][colIdx].value !== 0) continue;
@@ -71,8 +71,8 @@ export class Board {
         return slots;
     }
 
-    async chooseNext(waitMs: number = 200) {
-        let slots = this.findEmptySlots();
+    async chooseNext(waitMs = 200) {
+        const slots = this.findEmptySlots();
         if (slots.length === 0) {
             return;
         }
@@ -83,13 +83,13 @@ export class Board {
     }
 }
 
-type Move = {
+interface Move {
     score: number;
     moved: boolean;
-};
+}
 
 function createMove(): Move {
-    return { score: 0, moved: false }
+    return { score: 0, moved: false };
 }
 
 function setDidMove(move: Move, a: number[], b: number[]): boolean {
@@ -98,7 +98,7 @@ function setDidMove(move: Move, a: number[], b: number[]): boolean {
     return move.moved;
 }
 
-type TopScoreState = {
+interface TopScoreState {
     score: number;
     ts: number;
 }
@@ -107,7 +107,7 @@ export class Game {
     // TODO: score current game state in local storage
     // TODO: score should be per size
     static STORAGE_KEY_TOPSCORE = "2048.topscore";
-    static STORAGE_KEY_GAME = "2048.game"
+    static STORAGE_KEY_GAME = "2048.game";
 
     score = $state(0);
     topScore = $state<TopScoreState | null>(null);
@@ -126,12 +126,12 @@ export class Game {
         window.localStorage.setItem(Game.STORAGE_KEY_TOPSCORE, serial);
     }
 
-    lost = $state(false)
+    lost = $state(false);
 
     constructor(private board: Board) {
         onMount(() => {
             this.loadTopScore();
-        })
+        });
     }
 
     reset() {
@@ -142,8 +142,8 @@ export class Game {
     private moveRight() {
         const move = createMove();
         for (let rowIdx = 0; rowIdx < this.board.rows; rowIdx++) {
-            let row = this.board.tiles[rowIdx].map((_) => _.value);
-            let { result, score } = combineToRight(row);
+            const row = this.board.tiles[rowIdx].map((_) => _.value);
+            const { result, score } = combineToRight(row);
             setDidMove(move, result, row);
             this.board.tiles[rowIdx] = result
                 .map((v) => createTile(v, this.board.tileCssOutput));
@@ -155,8 +155,8 @@ export class Game {
     private moveLeft() {
         const move = createMove();
         for (let rowIdx = 0; rowIdx < this.board.rows; rowIdx++) {
-            let row = this.board.tiles[rowIdx].map((_) => _.value);
-            let { result, score } = combineToLeft(row);
+            const row = this.board.tiles[rowIdx].map((_) => _.value);
+            const { result, score } = combineToLeft(row);
             setDidMove(move, result, row);
             this.board.tiles[rowIdx] = result
                 .map((v) => createTile(v, this.board.tileCssOutput));
@@ -168,15 +168,15 @@ export class Game {
     private moveDown() {
         const move = createMove();
         for (let rowIdx = 0; rowIdx < this.board.rows; rowIdx++) {
-            let transposed: number[] = [];
+            const transposed: number[] = [];
             for (let colIdx = 0; colIdx < this.board.cols; colIdx++) {
                 transposed.push(this.board.tiles[colIdx][rowIdx].value);
             }
 
-            let { result, score } = combineToRight(transposed);
+            const { result, score } = combineToRight(transposed);
             setDidMove(move, result, transposed);
-            let resultTiles = result
-                .map((v) => createTile(v, this.board.tileCssOutput))
+            const resultTiles = result
+                .map((v) => createTile(v, this.board.tileCssOutput));
             for (let colIdx = 0; colIdx < this.board.cols; colIdx++) {
                 this.board.tiles[colIdx][rowIdx] = resultTiles[colIdx];
             }
@@ -188,13 +188,13 @@ export class Game {
     private moveUp() {
         const move = createMove();
         for (let rowIdx = 0; rowIdx < this.board.rows; rowIdx++) {
-            let transposed: number[] = [];
+            const transposed: number[] = [];
             for (let colIdx = 0; colIdx < this.board.cols; colIdx++) {
                 transposed.push(this.board.tiles[colIdx][rowIdx].value);
             }
-            let { result, score } = combineToLeft(transposed);
+            const { result, score } = combineToLeft(transposed);
             setDidMove(move, result, transposed);
-            let resultTiles = result
+            const resultTiles = result
                 .map((v) => createTile(v, this.board.tileCssOutput));
             for (let colIdx = 0; colIdx < this.board.cols; colIdx++) {
                 this.board.tiles[colIdx][rowIdx] = resultTiles[colIdx];
@@ -210,18 +210,18 @@ export class Game {
         for (let rowIdx = 0; rowIdx < this.board.rows; rowIdx++) {
             const row = slice[rowIdx];
             const rowValues = row.map((_) => _.value);
-            let movableRight = deepEquals((combineToRight(rowValues)).result, rowValues) === false;
-            let movableLeft = deepEquals((combineToLeft(rowValues)).result, rowValues) === false;
+            const movableRight = deepEquals((combineToRight(rowValues)).result, rowValues) === false;
+            const movableLeft = deepEquals((combineToLeft(rowValues)).result, rowValues) === false;
             if (movableRight || movableLeft) {
                 lost = false;
                 break;
             }
-            let colValues: number[] = [];
+            const colValues: number[] = [];
             for (let colIdx = 0; colIdx < this.board.cols; colIdx++) {
                 colValues.push(slice[colIdx][rowIdx].value);
             }
-            let movableUp = deepEquals((combineToLeft(colValues)).result, colValues) === false;
-            let movableDown = deepEquals((combineToRight(colValues)).result, colValues) === false;
+            const movableUp = deepEquals((combineToLeft(colValues)).result, colValues) === false;
+            const movableDown = deepEquals((combineToRight(colValues)).result, colValues) === false;
             if (movableUp || movableDown) {
                 lost = false;
                 break;
@@ -259,6 +259,6 @@ const handlerKeys = ["ArrowRight", "ArrowLeft", "ArrowDown", "ArrowUp"] as const
 export type HandlerKey = typeof handlerKeys[number];
 
 export function isHandlerKey(key: HandlerKey | string): key is HandlerKey {
-    return handlerKeys.includes(key as HandlerKey)
+    return handlerKeys.includes(key as HandlerKey);
 }
 

@@ -1,5 +1,5 @@
 /** Chooses a random value from the items and returns it. */
-export function choose<ValueType extends unknown>(...items: ValueType[]) {
+export function choose<ValueType>(...items: ValueType[]) {
     const idx = Math.floor(Math.random() * items.length);
     return items[idx];
 }
