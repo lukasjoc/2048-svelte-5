@@ -2,7 +2,7 @@ import { choose } from "@/helpers/random";
 
 export type HexValue = `#${string}`;
 
-export interface Palette {
+export type Palette = {
     fg: HexValue;
     bg: HexValue;
     tile: HexValue[];

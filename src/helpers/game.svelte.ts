@@ -83,7 +83,7 @@ export class Board {
     }
 }
 
-interface Move {
+type Move = {
     score: number;
     moved: boolean;
 }
@@ -98,7 +98,7 @@ function setDidMove(move: Move, a: number[], b: number[]): boolean {
     return move.moved;
 }
 
-interface TopScoreState {
+type TopScoreState = {
     score: number;
     ts: number;
 }

@@ -16,7 +16,17 @@ export default tseslint.config(
         "quotes": ["error", "double"],
         "comma-dangle": ["error", "always-multiline"],
         "eol-last": ["error", "always"],
-        "spaced-comment": ["error", "always"]},
+        "spaced-comment": ["error", "always"],
+        "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+        "@typescript-eslint/consistent-type-imports": ["error", {
+            fixStyle: "inline-type-imports",
+            prefer: "type-imports",
+        }],
+        "@typescript-eslint/consistent-type-assertions": ["error", {
+            assertionStyle: "as",
+            objectLiteralTypeAssertions: "allow",
+        }],
+    },
     }],
     // ...eslintPluginSvelte.configs["flat/recommended"],
     // ...[{

@@ -1,6 +1,6 @@
 import { deepEquals } from "@/helpers/std";
 
-interface CombinationResult {
+type CombinationResult = {
     result: number[];
     score: number;
 }

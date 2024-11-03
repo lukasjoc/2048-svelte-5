@@ -2,7 +2,7 @@ import { type Palette } from "./palette";
 
 // TODO: pos for saving to localstorage
 // type TilePos = [/*rowIdx*/number, /*colIdx*/number];
-interface TileCss {
+type TileCss = {
     color: string;
     backgroundColor: string;
     fontSize?: string;
@@ -10,7 +10,7 @@ interface TileCss {
 
 export type TileValue = number;
 
-export interface TileType {
+export type TileType = {
     value: TileValue;
     css: TileCss;
     // pos?: TilePos;
