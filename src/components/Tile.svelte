@@ -1,13 +1,19 @@
 <script lang="ts">
-    import { type TileType } from "./tile";
+    import { type TileValue, type TileType } from "@/helpers/tile";
     const { tile }: { tile: TileType } = $props();
+
+    const tileValue = $derived<TileValue | undefined>(
+        tile.value > 0 ? tile.value : undefined,
+    );
 </script>
 
 <div
     class="tile"
-    style={tile.value ? `color:darkblue;background-color:${tile.color};` : ""}
+    style:color={tile.css.color}
+    style:background-color={tile.css.backgroundColor}
+    style:font-size={tile.css.fontSize}
 >
-    <span class="value">{tile.value > 0 ? tile.value : ""}</span>
+    <span class="value">{tileValue}</span>
 </div>
 
 <style>
@@ -19,14 +25,8 @@
     .tile {
         width: var(--tile-width);
         height: var(--tile-height);
-        margin: 3px;
+        margin: 2px;
         padding: 3px;
-        color: white;
-        background-color: #000b46;
-    }
-
-    .value {
-        font-family: Agave, Menlo, monospace;
-        font-size: 49px;
+        text-align: center;
     }
 </style>
