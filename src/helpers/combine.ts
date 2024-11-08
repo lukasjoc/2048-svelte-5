@@ -5,9 +5,7 @@ type CombinationResult = {
     score: number;
 }
 
-// TODO: move __rounds into the function and use while instead to keep going
-// for cases that are shifted first but need further combination (can be combined).
-export function combineToRight(xs: number[], __rounds = false): CombinationResult {
+export function combineToRight(xs: number[], __combined = false): CombinationResult {
     const result = xs.slice();
     let score = 0;
     for (let i = result.length - 1; i >= 0; i--) {
@@ -17,26 +15,22 @@ export function combineToRight(xs: number[], __rounds = false): CombinationResul
         const lhs = result[lhsIdx];
         if (lhs === undefined) break;
         if (rhs !== 0 && lhs !== 0 && rhs !== lhs) continue;
-
         const sum = lhs + rhs;
         result.splice(lhsIdx, 2, sum);
         result.unshift(0);
         if (rhs > 0 && lhs > 0 && rhs === lhs) {
             score += sum;
-            __rounds = true;
+            __combined = true;
         }
-
     }
-    if (__rounds || deepEquals(xs, result)) {
+    if (result[result.length - 1] === 0) __combined = false;
+    if (__combined || deepEquals(xs, result)) {
         return { result, score };
     }
-    // NOTE : in some cases we only shift in the first iteration so we need to
-    // run it again to make our single combination happen. Thus the recursion.
-    // Could be better implemented using a while(..) {..} i think. (FIXME)
-    return combineToRight(result, __rounds);
+    return combineToRight(result, __combined);
 }
 
-export function combineToLeft(xs: number[], __rounds = false): CombinationResult {
+export function combineToLeft(xs: number[], __combined = false): CombinationResult {
     const result = xs.slice();
     let score = 0;
     for (let i = 0; i < result.length; i++) {
@@ -51,13 +45,14 @@ export function combineToLeft(xs: number[], __rounds = false): CombinationResult
         result.push(0);
         if (rhs > 0 && lhs > 0 && rhs === lhs) {
             score += sum;
-            __rounds = true;
+            __combined = true;
         }
     }
-    if (__rounds || deepEquals(xs, result)) {
+    if (result[0] === 0) __combined = false;
+    if (__combined || deepEquals(xs, result)) {
         return { result, score };
     }
-    return combineToLeft(result, __rounds);
+    return combineToLeft(result, __combined);
 }
 
 if (import.meta.vitest) {
@@ -66,6 +61,7 @@ if (import.meta.vitest) {
     it("can shift right", () => {
         const cases = [
             [/* input*/[4, 0, 4], /* expected*/[0, 0, 8]],
+            [/* input*/[4, 0, 0], /* expected*/[0, 0, 4]],
             [/* input*/[4, 4, 4], /* expected*/[0, 4, 8]],
             [/* input*/[0, 2, 0], /* expected*/[0, 0, 2]],
             [/* input*/[2, 4, 0], /* expected*/[0, 2, 4]],
@@ -81,6 +77,8 @@ if (import.meta.vitest) {
             [/* input*/[0, 2, 4], /* expected*/[0, 2, 4]],
             [/* input*/[8, 4, 4], /* expected*/[0, 8, 8]],
             [/* input*/[4, 4, 8], /* expected*/[0, 8, 8]],
+            [/* input*/[4, 4, 0, 0], /* expected*/[0, 0, 0, 8]],
+            [/* input*/[4, 4, 8, 0], /* expected*/[0, 0, 8, 8]],
         ];
         for (const [input, expected] of cases) {
             expect(combineToRight(input).result).toStrictEqual(expected);
@@ -104,6 +102,8 @@ if (import.meta.vitest) {
             [/* input*/[0, 2, 4], /* expected*/[2, 4, 0]],
             [/* input*/[8, 4, 4], /* expected*/[8, 8, 0]],
             [/* input*/[4, 4, 8], /* expected*/[8, 8, 0]],
+            [/* input*/[0, 0, 4, 4], /* expected*/[8, 0, 0, 0]],
+            [/* input*/[8, 4, 4, 0], /* expected*/[8, 8, 0, 0]],
         ];
         for (const [input, expected] of cases) {
             expect(combineToLeft(input).result).toStrictEqual(expected);
